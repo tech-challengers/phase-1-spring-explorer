@@ -2,5 +2,6 @@ package br.com.foodapi.domain.usuario;
 
 public enum TipoUsuario {
     CLIENTE,
-    DONO_RESTAURANTE
+    DONO_RESTAURANTE,
+    USUARIO
 }
