@@ -1,0 +1,471 @@
+openapi: 3.1.0
+
+info:
+  title: Delivery API
+  version: v1
+  description: |
+    API de gerenciamento de usuários para sistema de entrega.
+
+    Projeto desenvolvido seguindo API First.
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+tags:
+  - name: Authentication
+  - name: Users
+
+paths:
+
+  /auth/login:
+
+    post:
+      tags:
+        - Authentication
+
+      summary: Autenticar usuário
+
+      operationId: login
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              sucesso:
+                value:
+                  login: joao@email.com
+                  password: "123456"
+
+      responses:
+
+        "200":
+          description: Login realizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+
+  /users:
+
+    post:
+
+      tags:
+        - Users
+
+      summary: Cadastrar usuário
+
+      operationId: createUser
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+
+      responses:
+
+        "201":
+          description: Usuário criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        "400":
+          $ref: '#/components/responses/BadRequest'
+
+        "409":
+          $ref: '#/components/responses/Conflict'
+
+    get:
+
+      tags:
+        - Users
+
+      summary: Buscar usuários por nome
+
+      operationId: findUsers
+
+      parameters:
+
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+
+      responses:
+
+        "200":
+
+          description: Lista de usuários
+
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+
+  /users/{userId}:
+
+    get:
+
+      tags:
+        - Users
+
+      summary: Buscar usuário pelo ID
+
+      operationId: findUserById
+
+      parameters:
+
+        - $ref: '#/components/parameters/UserId'
+
+      responses:
+
+        "200":
+
+          description: Usuário encontrado
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+
+      tags:
+        - Users
+
+      summary: Atualizar dados do usuário
+
+      operationId: updateUser
+
+      parameters:
+
+        - $ref: '#/components/parameters/UserId'
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+
+      responses:
+
+        "200":
+
+          description: Usuário atualizado
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+        "409":
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+
+      tags:
+        - Users
+
+      summary: Excluir usuário
+
+      operationId: deleteUser
+
+      parameters:
+
+        - $ref: '#/components/parameters/UserId'
+
+      responses:
+
+        "204":
+          description: Usuário removido
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/password:
+
+    patch:
+
+      tags:
+        - Users
+
+      summary: Alterar senha
+
+      operationId: changePassword
+
+      parameters:
+
+        - $ref: '#/components/parameters/UserId'
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+
+      responses:
+
+        "204":
+          description: Senha alterada
+
+        "400":
+          $ref: '#/components/responses/BadRequest'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+components:
+
+  parameters:
+
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+
+    BadRequest:
+
+      description: Requisição inválida
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+          example:
+
+            type: about:blank
+            title: Bad Request
+            status: 400
+            detail: Dados inválidos
+
+    Conflict:
+
+      description: Conflito
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+          example:
+
+            type: about:blank
+            title: Conflict
+            status: 409
+            detail: E-mail já cadastrado
+
+    Unauthorized:
+
+      description: Login inválido
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+          example:
+
+            type: about:blank
+            title: Unauthorized
+            status: 401
+            detail: Login ou senha inválidos
+
+    NotFound:
+
+      description: Recurso não encontrado
+
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+          example:
+
+            type: about:blank
+            title: Not Found
+            status: 404
+            detail: Usuário não encontrado
+
+  schemas:
+
+    UserRole:
+
+      type: string
+
+      enum:
+        - CLIENT
+        - RESTAURANT_OWNER
+
+    LoginRequest:
+
+      type: object
+
+      required:
+        - login
+        - password
+
+      properties:
+
+        login:
+          type: string
+
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+
+      type: object
+
+      properties:
+
+        authenticated:
+          type: boolean
+
+        message:
+          type: string
+
+    UserCreateRequest:
+
+      type: object
+
+      required:
+        - name
+        - email
+        - password
+        - role
+
+      properties:
+
+        name:
+          type: string
+          minLength: 3
+          maxLength: 120
+
+        email:
+          type: string
+          format: email
+
+        password:
+          type: string
+          format: password
+
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    UserUpdateRequest:
+
+      type: object
+
+      required:
+        - name
+        - email
+        - role
+
+      properties:
+
+        name:
+          type: string
+
+        email:
+          type: string
+          format: email
+
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    ChangePasswordRequest:
+
+      type: object
+
+      required:
+        - currentPassword
+        - newPassword
+
+      properties:
+
+        currentPassword:
+          type: string
+          format: password
+
+        newPassword:
+          type: string
+          format: password
+
+    UserResponse:
+
+      type: object
+
+      properties:
+
+        id:
+          type: integer
+          format: int64
+
+        name:
+          type: string
+
+        email:
+          type: string
+
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+        lastModifiedAt:
+          type: string
+          format: date-time
+
+    Problem:
+
+      type: object
+
+      properties:
+
+        type:
+          type: string
+
+        title:
+          type: string
+
+        status:
+          type: integer
+
+        detail:
+          type: string
+
+        instance:
+          type: string
