@@ -1,6 +1,7 @@
 package br.com.foodapi.domain.endereco;
 
 import br.com.foodapi.domain.cliente.Cliente;
+import br.com.foodapi.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,8 +34,8 @@ public class Endereco {
 
     private String pais;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    @ManyToOne(fetch = FetchType.LAZY,  optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
 }
