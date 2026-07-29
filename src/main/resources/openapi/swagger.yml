@@ -4,7 +4,7 @@ info:
   title: Delivery API
   version: v1
   description: |
-    API de gerenciamento de usuários para sistema de entrega.
+    API de gerenciamento de usuários e endereços para sistema de entrega.
 
     Projeto desenvolvido seguindo API First.
 
@@ -13,18 +13,22 @@ servers:
 
 tags:
   - name: Authentication
+    description: Operações relacionadas à autenticação
+
   - name: Users
+    description: Operações relacionadas aos usuários
+
+  - name: Addresses
+    description: Operações relacionadas aos endereços dos clientes
 
 paths:
 
   /auth/login:
-
     post:
       tags:
         - Authentication
 
       summary: Autenticar usuário
-
       operationId: login
 
       requestBody:
@@ -34,13 +38,13 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginRequest'
             examples:
-              sucesso:
+              credenciais:
+                summary: Credenciais de exemplo
                 value:
-                  login: joao@email.com
-                  password: "123456"
+                  login: joao
+                  senha: "Senha@123"
 
       responses:
-
         "200":
           description: Login realizado
           content:
@@ -48,35 +52,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
 
+        "400":
+          $ref: '#/components/responses/BadRequest'
+
         "401":
           $ref: '#/components/responses/Unauthorized'
 
   /users:
-
     post:
-
       tags:
         - Users
 
       summary: Cadastrar usuário
-
-      operationId: createUser
+      operationId: cadastrarUsuario
 
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreateRequest'
+              $ref: '#/components/schemas/UsuarioCadastroRequest'
 
       responses:
-
         "201":
           description: Usuário criado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UsuarioResponse'
 
         "400":
           $ref: '#/components/responses/BadRequest'
@@ -85,98 +88,85 @@ paths:
           $ref: '#/components/responses/Conflict'
 
     get:
-
       tags:
         - Users
 
       summary: Buscar usuários por nome
-
-      operationId: findUsers
+      description: Retorna os usuários cujo nome contenha o valor informado.
+      operationId: procurarUsuario
 
       parameters:
-
         - in: query
-          name: name
+          name: nome
+          description: Nome ou parte do nome do usuário
           required: true
           schema:
             type: string
+            minLength: 1
+          example: João
 
       responses:
-
         "200":
-
-          description: Lista de usuários
-
+          description: Lista de usuários encontrados
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserResponse'
+                  $ref: '#/components/schemas/UsuarioResponse'
+
+        "400":
+          $ref: '#/components/responses/BadRequest'
 
   /users/{userId}:
-
     get:
-
       tags:
         - Users
 
       summary: Buscar usuário pelo ID
-
-      operationId: findUserById
+      operationId: procurarUsuarioPorId
 
       parameters:
-
         - $ref: '#/components/parameters/UserId'
 
       responses:
-
         "200":
-
           description: Usuário encontrado
-
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UsuarioResponse'
 
         "404":
           $ref: '#/components/responses/NotFound'
 
     put:
-
       tags:
         - Users
 
       summary: Atualizar dados do usuário
-
-      operationId: updateUser
+      operationId: atualizarUsuario
 
       parameters:
-
         - $ref: '#/components/parameters/UserId'
 
       requestBody:
-
         required: true
-
         content:
-
           application/json:
-
             schema:
-              $ref: '#/components/schemas/UserUpdateRequest'
+              $ref: '#/components/schemas/UsuarioAtualizacaoRequest'
 
       responses:
-
         "200":
-
           description: Usuário atualizado
-
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UsuarioResponse'
+
+        "400":
+          $ref: '#/components/responses/BadRequest'
 
         "404":
           $ref: '#/components/responses/NotFound'
@@ -185,59 +175,180 @@ paths:
           $ref: '#/components/responses/Conflict'
 
     delete:
-
       tags:
         - Users
 
       summary: Excluir usuário
-
-      operationId: deleteUser
+      operationId: excluirUsuario
 
       parameters:
-
         - $ref: '#/components/parameters/UserId'
 
       responses:
-
         "204":
           description: Usuário removido
 
         "404":
           $ref: '#/components/responses/NotFound'
 
-  /users/{userId}/password:
-
+  /users/{userId}/senha:
     patch:
-
       tags:
         - Users
 
-      summary: Alterar senha
-
-      operationId: changePassword
+      summary: Alterar senha do usuário
+      operationId: alterarSenhaUsuario
 
       parameters:
-
         - $ref: '#/components/parameters/UserId'
 
       requestBody:
-
         required: true
-
         content:
-
           application/json:
-
             schema:
-              $ref: '#/components/schemas/ChangePasswordRequest'
+              $ref: '#/components/schemas/AlteracaoSenhaRequest'
 
       responses:
-
         "204":
           description: Senha alterada
 
         "400":
           $ref: '#/components/responses/BadRequest'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/enderecos:
+    post:
+      tags:
+        - Addresses
+
+      summary: Cadastrar endereço para o cliente
+      description: |
+        Cadastra um novo endereço para o usuário informado.
+
+        O usuário deve possuir o tipo CLIENTE.
+      operationId: cadastrarEndereco
+
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnderecoCadastroRequest'
+
+      responses:
+        "201":
+          description: Endereço cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnderecoResponse'
+
+        "400":
+          $ref: '#/components/responses/BadRequest'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    get:
+      tags:
+        - Addresses
+
+      summary: Listar endereços do cliente
+      description: Retorna todos os endereços cadastrados para o cliente.
+      operationId: listarEnderecos
+
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+
+      responses:
+        "200":
+          description: Lista de endereços do cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnderecoResponse'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/enderecos/{enderecoId}:
+    get:
+      tags:
+        - Addresses
+
+      summary: Buscar endereço pelo ID
+      description: Busca um endereço pertencente ao cliente informado.
+      operationId: procurarEnderecoPorId
+
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/EnderecoId'
+
+      responses:
+        "200":
+          description: Endereço encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnderecoResponse'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Addresses
+
+      summary: Atualizar endereço do cliente
+      operationId: atualizarEndereco
+
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/EnderecoId'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnderecoAtualizacaoRequest'
+
+      responses:
+        "200":
+          description: Endereço atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnderecoResponse'
+
+        "400":
+          $ref: '#/components/responses/BadRequest'
+
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Addresses
+
+      summary: Excluir endereço do cliente
+      operationId: excluirEndereco
+
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/EnderecoId'
+
+      responses:
+        "204":
+          description: Endereço removido
 
         "404":
           $ref: '#/components/responses/NotFound'
@@ -249,223 +360,459 @@ components:
     UserId:
       in: path
       name: userId
+      description: Identificador do usuário
       required: true
       schema:
         type: integer
         format: int64
+        minimum: 1
+      example: 1
+
+    EnderecoId:
+      in: path
+      name: enderecoId
+      description: Identificador do endereço
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      example: 1
 
   responses:
 
     BadRequest:
-
       description: Requisição inválida
-
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
-
           example:
-
             type: about:blank
             title: Bad Request
             status: 400
             detail: Dados inválidos
 
     Conflict:
-
-      description: Conflito
-
+      description: Login ou e-mail já cadastrado
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
-
           example:
-
             type: about:blank
             title: Conflict
             status: 409
-            detail: E-mail já cadastrado
+            detail: Login ou e-mail já cadastrado
 
     Unauthorized:
-
-      description: Login inválido
-
+      description: Credenciais inválidas
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
-
           example:
-
             type: about:blank
             title: Unauthorized
             status: 401
             detail: Login ou senha inválidos
 
     NotFound:
-
       description: Recurso não encontrado
-
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/Problem'
-
           example:
-
             type: about:blank
             title: Not Found
             status: 404
-            detail: Usuário não encontrado
+            detail: Recurso não encontrado
 
   schemas:
 
-    UserRole:
-
+    TipoUsuario:
       type: string
-
+      description: Tipo do usuário cadastrado no sistema
       enum:
-        - CLIENT
-        - RESTAURANT_OWNER
+        - CLIENTE
+        - DONO_RESTAURANTE
+      example: CLIENTE
 
     LoginRequest:
-
       type: object
 
       required:
         - login
-        - password
+        - senha
 
       properties:
-
         login:
           type: string
+          minLength: 3
+          maxLength: 60
+          example: joao
 
-        password:
+        senha:
           type: string
           format: password
+          minLength: 8
+          writeOnly: true
+          example: "Senha@123"
 
     LoginResponse:
-
       type: object
 
-      properties:
+      required:
+        - authenticated
+        - message
 
+      properties:
         authenticated:
           type: boolean
+          example: true
 
         message:
           type: string
+          example: Login realizado com sucesso
 
-    UserCreateRequest:
-
+    UsuarioCadastroRequest:
       type: object
 
       required:
-        - name
+        - nome
         - email
-        - password
-        - role
+        - login
+        - senha
+        - tipoUsuario
 
       properties:
-
-        name:
+        nome:
           type: string
           minLength: 3
           maxLength: 120
+          example: João da Silva
 
         email:
           type: string
           format: email
+          maxLength: 254
+          example: joao@example.com
 
-        password:
+        login:
+          type: string
+          minLength: 3
+          maxLength: 60
+          example: joao
+
+        senha:
           type: string
           format: password
+          minLength: 8
+          writeOnly: true
+          example: "Senha@123"
 
-        role:
-          $ref: '#/components/schemas/UserRole'
+        tipoUsuario:
+          $ref: '#/components/schemas/TipoUsuario'
 
-    UserUpdateRequest:
-
+    UsuarioAtualizacaoRequest:
       type: object
 
       required:
-        - name
+        - nome
         - email
-        - role
+        - login
+        - tipoUsuario
 
       properties:
-
-        name:
+        nome:
           type: string
+          minLength: 3
+          maxLength: 120
+          example: João da Silva
 
         email:
           type: string
           format: email
+          maxLength: 254
+          example: joao@example.com
 
-        role:
-          $ref: '#/components/schemas/UserRole'
+        login:
+          type: string
+          minLength: 3
+          maxLength: 60
+          example: joao
 
-    ChangePasswordRequest:
+        tipoUsuario:
+          $ref: '#/components/schemas/TipoUsuario'
 
+    AlteracaoSenhaRequest:
       type: object
 
       required:
-        - currentPassword
-        - newPassword
+        - senhaAtual
+        - novaSenha
 
       properties:
-
-        currentPassword:
+        senhaAtual:
           type: string
           format: password
+          minLength: 8
+          writeOnly: true
+          example: "Senha@123"
 
-        newPassword:
+        novaSenha:
           type: string
           format: password
+          minLength: 8
+          writeOnly: true
+          example: "NovaSenha@123"
 
-    UserResponse:
-
+    UsuarioResponse:
       type: object
 
-      properties:
+      required:
+        - id
+        - nome
+        - email
+        - login
+        - tipoUsuario
+        - dataCadastro
+        - dataAlteracao
 
+      properties:
         id:
           type: integer
           format: int64
+          readOnly: true
+          example: 1
 
-        name:
+        nome:
           type: string
+          example: João da Silva
 
         email:
           type: string
+          format: email
+          example: joao@example.com
 
-        role:
-          $ref: '#/components/schemas/UserRole'
+        login:
+          type: string
+          example: joao
 
-        lastModifiedAt:
+        tipoUsuario:
+          $ref: '#/components/schemas/TipoUsuario'
+
+        dataCadastro:
           type: string
           format: date-time
+          readOnly: true
+          example: "2026-07-26T10:00:00"
 
-    Problem:
+        dataAlteracao:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2026-07-26T10:00:00"
 
+    EnderecoCadastroRequest:
       type: object
 
-      properties:
+      required:
+        - logradouro
+        - numero
+        - bairro
+        - cidade
+        - cep
+        - estado
+        - pais
 
+      properties:
+        logradouro:
+          type: string
+          minLength: 3
+          maxLength: 150
+          example: Avenida Paulista
+
+        numero:
+          type: string
+          minLength: 1
+          maxLength: 20
+          example: "1000"
+
+        bairro:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Bela Vista
+
+        cidade:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: São Paulo
+
+        cep:
+          type: string
+          pattern: '^\d{8}$'
+          example: "01310100"
+
+        complemento:
+          type: string
+          maxLength: 100
+          example: Apartamento 101
+
+        estado:
+          type: string
+          minLength: 2
+          maxLength: 2
+          pattern: '^[A-Z]{2}$'
+          example: SP
+
+        pais:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Brasil
+
+    EnderecoAtualizacaoRequest:
+      type: object
+
+      required:
+        - logradouro
+        - numero
+        - bairro
+        - cidade
+        - cep
+        - estado
+        - pais
+
+      properties:
+        logradouro:
+          type: string
+          minLength: 3
+          maxLength: 150
+          example: Avenida Paulista
+
+        numero:
+          type: string
+          minLength: 1
+          maxLength: 20
+          example: "1000"
+
+        bairro:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Bela Vista
+
+        cidade:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: São Paulo
+
+        cep:
+          type: string
+          pattern: '^\d{8}$'
+          example: "01310100"
+
+        complemento:
+          type: string
+          maxLength: 100
+          example: Apartamento 101
+
+        estado:
+          type: string
+          minLength: 2
+          maxLength: 2
+          pattern: '^[A-Z]{2}$'
+          example: SP
+
+        pais:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Brasil
+
+    EnderecoResponse:
+      type: object
+
+      required:
+        - id
+        - logradouro
+        - numero
+        - bairro
+        - cidade
+        - cep
+        - estado
+        - pais
+
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1
+
+        logradouro:
+          type: string
+          example: Avenida Paulista
+
+        numero:
+          type: string
+          example: "1000"
+
+        bairro:
+          type: string
+          example: Bela Vista
+
+        cidade:
+          type: string
+          example: São Paulo
+
+        cep:
+          type: string
+          example: "01310100"
+
+        complemento:
+          type: string
+          example: Apartamento 101
+
+        estado:
+          type: string
+          example: SP
+
+        pais:
+          type: string
+          example: Brasil
+
+    Problem:
+      type: object
+
+      required:
+        - title
+        - status
+        - detail
+
+      properties:
         type:
           type: string
+          example: about:blank
 
         title:
           type: string
+          example: Bad Request
 
         status:
           type: integer
+          format: int32
+          example: 400
 
         detail:
           type: string
+          example: Dados inválidos
 
         instance:
           type: string
+          example: /api/v1/users/1
