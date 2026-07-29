@@ -52,4 +52,15 @@ public class Usuario {
     )
     private List<Endereco> enderecos = new ArrayList<>();
 
+    @PrePersist
+    private void prePersist() {
+        LocalDateTime agora = LocalDateTime.now();
+        this.dataCadastro = agora;
+        this.dataAlteracao = agora;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.dataAlteracao = LocalDateTime.now();
+    }
 }
