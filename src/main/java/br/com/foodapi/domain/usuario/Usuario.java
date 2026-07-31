@@ -61,4 +61,13 @@ public class Usuario {
     private void preUpdate() {
         this.dataAlteracao = LocalDateTime.now();
     }
+
+    public Usuario(CreateUserDTO data) {
+        this.email = data.email();
+        this.login = data.login();
+        this.nome = data.nome();
+
+        // TODO: Não salvar a senha no banco. Implementacao temporaria
+        this.senha = data.senha();
+    }
 }
