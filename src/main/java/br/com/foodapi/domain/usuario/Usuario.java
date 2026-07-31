@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_entidade", discriminatorType = DiscriminatorType.STRING)
 public class Usuario {
 
     @Id
@@ -44,7 +46,7 @@ public class Usuario {
     private LocalDateTime dataAlteracao;
 
     @OneToMany(
-            mappedBy = "cliente",
+            mappedBy = "usuario",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
