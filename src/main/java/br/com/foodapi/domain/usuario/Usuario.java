@@ -1,6 +1,7 @@
 package br.com.foodapi.domain.usuario;
 
 import br.com.foodapi.domain.endereco.Endereco;
+import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -64,12 +65,11 @@ public class Usuario {
         this.dataAlteracao = LocalDateTime.now();
     }
 
-    public Usuario(CreateUserDTO data) {
-        this.email = data.email();
-        this.login = data.login();
-        this.nome = data.nome();
-
-        // TODO: Não salvar a senha no banco. Implementacao temporaria
-        this.senha = data.senha();
+    public Usuario(UsuarioCadastroRequest data, String hashedPassword) {
+        this.email = data.getEmail();
+        this.login = data.getLogin();
+        this.nome = data.getNome();
+        this.tipoUsuario = TipoUsuario.valueOf(data.getTipoUsuario().name());
+        this.senha = hashedPassword;
     }
 }
