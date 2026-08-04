@@ -1,5 +1,6 @@
 package br.com.foodapi.controller;
 
+import br.com.foodapi.domain.usuario.Usuario;
 import br.com.foodapi.generated.api.UsersApi;
 import br.com.foodapi.generated.model.*;
 import br.com.foodapi.service.CreateUserService;
@@ -30,9 +31,9 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<UsuarioResponse> cadastrarUsuario(UsuarioCadastroRequest usuarioCadastroRequest) {
-        var user = this.createUserService.createUser(usuarioCadastroRequest);
+        Usuario user = this.createUserService.createUser(usuarioCadastroRequest);
 
-        var uri = URI.create("/users/" + user.getId());
+        URI uri = URI.create("/users/" + user.getId());
 
         return ResponseEntity.created(uri).body(
                 new UsuarioResponse(
