@@ -37,6 +37,14 @@ public class UserService {
     }
 
     @Transactional
+    public void deleteUser(Long userId) {
+        Usuario usuario = repository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        repository.delete(usuario);
+    }
+
+    @Transactional
     public Usuario updateUser(Long id, UsuarioAtualizacaoRequest data) {
 
         Usuario user = repository.findById(id)
@@ -44,6 +52,19 @@ public class UserService {
 
         verifyLoginInUse(data.getLogin());
         findByEmail(data.getEmail());
+        Usuario emailUser = repository.findByEmail(data.getEmail())
+                .orElse(null);
+
+        if (emailUser != null && !emailUser.getId().equals(id)) {
+            throw new UserAlreadyExistsException("Email already in use");
+        }
+
+        Usuario loginUser = repository.findByLogin(data.getLogin())
+                .orElse(null);
+
+        if (loginUser != null && !loginUser.getId().equals(id)) {
+            throw new UserAlreadyExistsException("Username already in use");
+        }
 
         user.setNome(data.getNome());
         user.setEmail(data.getEmail());
