@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.ZoneOffset;
@@ -33,7 +34,11 @@ public class UserController implements UsersApi {
     public ResponseEntity<UsuarioResponse> cadastrarUsuario(UsuarioCadastroRequest usuarioCadastroRequest) {
         Usuario user = this.createUserService.createUser(usuarioCadastroRequest);
 
-        URI uri = URI.create("/users/" + user.getId());
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(user.getId())
+                .toUri();
 
         return ResponseEntity.created(uri).body(
                 new UsuarioResponse(
