@@ -4,20 +4,20 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql-tech-challenge
-
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: restaurant_db
-
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
   app:
     build:
       context: .
     container_name: spring-tech-challenge
     ports:
-      - "3306:3306"
-
-    volumes:
-      - mysql_data:/var/lib/mysql
+      - "8080:8080"
 
 volumes:
   mysql_data:

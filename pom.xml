@@ -166,6 +166,8 @@
                         <dateLibrary>java8</dateLibrary>
                         <openApiNullable>false</openApiNullable>
                         <skipDefaultInterface>true</skipDefaultInterface>
+                        <useBuilders>true</useBuilders>
+                        <generateBuilders>true</generateBuilders>
                     </configOptions>
                 </configuration>
 

@@ -1,6 +1,5 @@
-package br.com.foodapi.domain.usuario;
+package br.com.foodapi.domain.model;
 
-import br.com.foodapi.domain.endereco.Endereco;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import jakarta.persistence.*;
 import lombok.*;
