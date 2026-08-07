@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "Delivery API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "POST /users",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "GET /users/{userId}",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/{userId}"
+          }
+        },
+        {
+          "name": "PUT /users/{userId}",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/{userId}"
+          }
+        },
+        {
+          "name": "DELETE /users/{userId}",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/{userId}"
+          }
+        },
+        {
+          "name": "PATCH /users/{userId}/senha",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/users/{userId}/senha"
+          }
+        },
+        {
+          "name": "POST /users/{userId}/enderecos",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users/{userId}/enderecos"
+          }
+        },
+        {
+          "name": "GET /users/{userId}/enderecos",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/{userId}/enderecos"
+          }
+        },
+        {
+          "name": "GET /users/{userId}/enderecos/{enderecoId}",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/{userId}/enderecos/{enderecoId}"
+          }
+        },
+        {
+          "name": "PUT /users/{userId}/enderecos/{enderecoId}",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/{userId}/enderecos/{enderecoId}"
+          }
+        },
+        {
+          "name": "DELETE /users/{userId}/enderecos/{enderecoId}",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/{userId}/enderecos/{enderecoId}"
+          }
+        }
+      ]
+    }
+  ]
+}

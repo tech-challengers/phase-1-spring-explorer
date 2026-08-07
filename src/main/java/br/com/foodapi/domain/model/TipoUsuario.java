@@ -1,4 +1,4 @@
-package br.com.foodapi.domain.usuario;
+package br.com.foodapi.domain.model;
 
 public enum TipoUsuario {
     CLIENTE,

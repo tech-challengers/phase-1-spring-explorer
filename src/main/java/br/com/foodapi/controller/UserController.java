@@ -1,9 +1,9 @@
 package br.com.foodapi.controller;
 
-import br.com.foodapi.domain.usuario.Usuario;
+import br.com.foodapi.domain.model.Usuario;
 import br.com.foodapi.generated.api.UsersApi;
 import br.com.foodapi.generated.model.*;
-import br.com.foodapi.service.CreateUserService;
+import br.com.foodapi.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserController implements UsersApi {
 
-    private final CreateUserService createUserService;
+    private final UserService userService;
 
     @Override
     public ResponseEntity<Void> alterarSenhaUsuario(Long userId, AlteracaoSenhaRequest alteracaoSenhaRequest) {
@@ -32,7 +32,7 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<UsuarioResponse> cadastrarUsuario(UsuarioCadastroRequest usuarioCadastroRequest) {
-        Usuario user = this.createUserService.createUser(usuarioCadastroRequest);
+        Usuario user = this.userService.createUser(usuarioCadastroRequest);
 
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()

@@ -1,6 +1,5 @@
-package br.com.foodapi.domain.restaurante;
+package br.com.foodapi.domain.model;
 
-import br.com.foodapi.domain.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 
