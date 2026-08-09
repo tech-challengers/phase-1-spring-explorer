@@ -2,7 +2,7 @@ package br.com.foodapi.controller;
 
 import br.com.foodapi.generated.model.Problem;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
-import jakarta.servlet.http.HttpServletRequest;
+import br.com.foodapi.infra.errors.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -19,22 +19,22 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ControllerAdvice extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Problem> handleEntidadeNaoEncontrada(
-            UserAlreadyExistsException ex,
-            HttpServletRequest request) {
-
-        Problem problem = Problem.builder()
-                .type("about:blank")
-                .title("Not Found")
-                .status(HttpStatus.NOT_FOUND.value())
-                .detail(ex.getMessage())
-                .instance(request.getRequestURI())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(problem);
-    }
+//    @ExceptionHandler(UserAlreadyExistsException.class)
+//    public ResponseEntity<Problem> handleEntidadeNaoEncontrada(
+//            UserAlreadyExistsException ex,
+//            HttpServletRequest request) {
+//
+//        Problem problem = Problem.builder()
+//                .type("about:blank")
+//                .title("Not Found")
+//                .status(HttpStatus.NOT_FOUND.value())
+//                .detail(ex.getMessage())
+//                .instance(request.getRequestURI())
+//                .build();
+//
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                .body(problem);
+//    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -62,5 +62,23 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
                 .getRequestURI());
 
         return handleExceptionInternal(ex, problem, headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Problem> handleUserNotFound(UserNotFoundException ex) {
+        Problem problem = new Problem();
+        problem.setStatus(HttpStatus.NOT_FOUND.value());
+        problem.setTitle("Not Found");
+        problem.setDetail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<Problem> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        Problem problem = new Problem();
+        problem.setStatus(HttpStatus.CONFLICT.value());
+        problem.setTitle("Conflict");
+        problem.setDetail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
 }

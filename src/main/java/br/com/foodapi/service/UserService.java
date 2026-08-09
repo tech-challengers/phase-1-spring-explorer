@@ -1,9 +1,11 @@
 package br.com.foodapi.service;
 
 import br.com.foodapi.domain.model.Usuario;
-import br.com.foodapi.repository.UserRepository;
+import br.com.foodapi.generated.model.UsuarioAtualizacaoRequest;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
+import br.com.foodapi.infra.errors.UserNotFoundException;
+import br.com.foodapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +35,32 @@ public class UserService {
         Usuario user = new Usuario(data, this.passwordEncoder.encode(data.getSenha()));
         return this.repository.save(user);
     }
+
+    @Transactional
+    public Usuario updateUser(Long id, UsuarioAtualizacaoRequest data) {
+
+        Usuario user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        Usuario emailUser = repository.findByEmail(data.getEmail());
+
+        if (emailUser != null && !emailUser.getId().equals(id)) {
+            throw new UserAlreadyExistsException("Email already in use");
+        }
+
+        Usuario loginUser = repository.findByLogin(data.getLogin());
+
+        if (loginUser != null && !loginUser.getId().equals(id)) {
+            throw new UserAlreadyExistsException("Username already in use");
+        }
+
+        user.setNome(data.getNome());
+        user.setEmail(data.getEmail());
+        user.setLogin(data.getLogin());
+
+        return repository.save(user);
+    }
+
     public List<Usuario> findByName(String nome) {
         return repository.findByNomeContainingIgnoreCase(nome);
     }
