@@ -27,7 +27,19 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<UsuarioResponse> atualizarUsuario(Long userId, UsuarioAtualizacaoRequest usuarioAtualizacaoRequest) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        Usuario user = createUserService.updateUser(userId, usuarioAtualizacaoRequest);
+
+        return ResponseEntity.ok(
+                new UsuarioResponse(
+                        user.getId(),
+                        user.getNome(),
+                        user.getEmail(),
+                        user.getLogin(),
+                        TipoUsuario.valueOf(user.getTipoUsuario().name()),
+                        user.getDataCadastro().atOffset(ZoneOffset.UTC),
+                        user.getDataAlteracao().atOffset(ZoneOffset.UTC)
+                )
+        );
     }
 
     @Override
