@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -30,4 +32,8 @@ public class UserService {
 
         return this.repository.save(user);
     }
+    public List<Usuario> findByName(String nome) {
+        return repository.findByNomeContainingIgnoreCase(nome);
+    }
+
 }

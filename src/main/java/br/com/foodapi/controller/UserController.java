@@ -60,9 +60,23 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<List<UsuarioResponse>> procurarUsuario(String nome) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-    }
 
+        List<Usuario> users = userService.findByName(nome);
+
+        List<UsuarioResponse> response = users.stream()
+                .map(user -> new UsuarioResponse(
+                        user.getId(),
+                        user.getNome(),
+                        user.getEmail(),
+                        user.getLogin(),
+                        TipoUsuario.valueOf(user.getTipoUsuario().name()),
+                        user.getDataCadastro().atOffset(ZoneOffset.UTC),
+                        user.getDataAlteracao().atOffset(ZoneOffset.UTC)
+                ))
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
     @Override
     public ResponseEntity<UsuarioResponse> procurarUsuarioPorId(Long userId) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
