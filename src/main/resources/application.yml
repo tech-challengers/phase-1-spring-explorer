@@ -24,3 +24,7 @@ springdoc:
 
 server:
   port: 8080
+
+jwt:
+  secret: ${API_SECRET:uma-chave-super-secreta-com-pelo-menos-32-caracteres-123456}
+  expiration: 36000

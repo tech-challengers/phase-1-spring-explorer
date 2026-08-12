@@ -3,6 +3,7 @@ package br.com.foodapi.domain.model;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class Usuario {
     @Column(nullable = false)
     private String nome;
 
+    @NaturalId
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -43,7 +45,7 @@ public class Usuario {
     private LocalDateTime dataCadastro = LocalDateTime.now();
 
     @Column(nullable = false)
-    private LocalDateTime dataAlteracao;
+    private LocalDateTime dataAlteracao = null;
 
     @OneToMany(
             mappedBy = "usuario",
@@ -54,9 +56,7 @@ public class Usuario {
 
     @PrePersist
     private void prePersist() {
-        LocalDateTime agora = LocalDateTime.now();
-        this.dataCadastro = agora;
-        this.dataAlteracao = agora;
+        this.dataCadastro = LocalDateTime.now();
     }
 
     @PreUpdate

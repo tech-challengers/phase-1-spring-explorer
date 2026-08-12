@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,14 +46,13 @@ public class UserServiceTest {
                 TipoUsuario.CLIENTE
         );
 
-
         this.user = new Usuario(this.userDTO, "encoded-password");
     }
 
     @Test
     void shouldCreateUserWithValidEmailAndLogin() {
-        when(repository.findByEmail("johndoe@email.com")).thenReturn(null);
-        when(repository.findByLogin("johndoe")).thenReturn(null);
+        when(repository.findByEmail("johndoe@email.com")).thenReturn(Optional.empty());
+        when(repository.findByLogin("johndoe")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("SomePasswordValid!@#")).thenReturn("encoded-password");
         when(repository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -68,7 +69,7 @@ public class UserServiceTest {
 
     @Test
     void shouldNotCreateUserWithInvalidEmail() {
-        when(repository.findByEmail("johndoe@email.com")).thenReturn(this.user);
+        when(repository.findByEmail("johndoe@email.com")).thenReturn(Optional.ofNullable(this.user));
 
         assertThrows(
                 UserAlreadyExistsException.class,
@@ -80,8 +81,8 @@ public class UserServiceTest {
 
     @Test
     void shouldNotCreateUserWithInvalidLogin() {
-        when(repository.findByEmail("johndoe@email.com")).thenReturn(null);
-        when(repository.findByLogin("johndoe")).thenReturn(this.user);
+        when(repository.findByEmail("johndoe@email.com")).thenReturn(Optional.empty());
+        when(repository.findByLogin("johndoe")).thenReturn(Optional.of(this.user));
 
         assertThrows(
                 UserAlreadyExistsException.class,
