@@ -34,12 +34,12 @@ class ControllerAdviceTest {
     void deveRetornarProblemQuandoUsuarioJaExiste() throws Exception {
 
         mockMvc.perform(get("/test/exception"))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.type").value("about:blank"))
                 .andExpect(jsonPath("$.title").value("Not Found"))
-                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.detail").value("Usuário já cadastrado"))
-                .andExpect(jsonPath("$.instance").value("/test/exception"));
+                .andExpect(jsonPath("$.instance").value("/exception"));
     }
 
     @Test

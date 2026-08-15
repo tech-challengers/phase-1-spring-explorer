@@ -19,23 +19,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ControllerAdvice extends ResponseEntityExceptionHandler {
 
-//    @ExceptionHandler(UserAlreadyExistsException.class)
-//    public ResponseEntity<Problem> handleEntidadeNaoEncontrada(
-//            UserAlreadyExistsException ex,
-//            HttpServletRequest request) {
-//
-//        Problem problem = Problem.builder()
-//                .type("about:blank")
-//                .title("Not Found")
-//                .status(HttpStatus.NOT_FOUND.value())
-//                .detail(ex.getMessage())
-//                .instance(request.getRequestURI())
-//                .build();
-//
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                .body(problem);
-//    }
-
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
@@ -77,8 +60,10 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<Problem> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         Problem problem = new Problem();
         problem.setStatus(HttpStatus.CONFLICT.value());
-        problem.setTitle("Conflict");
+        problem.setTitle("Not Found");
         problem.setDetail(ex.getMessage());
+        problem.setType("about:blank");
+        problem.setInstance("/exception");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
 }
