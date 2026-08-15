@@ -42,23 +42,26 @@ public class UserService {
         Usuario user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        Usuario emailUser = repository.findByEmail(data.getEmail());
-
-        if (emailUser != null && !emailUser.getId().equals(id)) {
-            throw new UserAlreadyExistsException("Email already in use");
-        }
-
-        Usuario loginUser = repository.findByLogin(data.getLogin());
-
-        if (loginUser != null && !loginUser.getId().equals(id)) {
-            throw new UserAlreadyExistsException("Username already in use");
-        }
+        verifyLoginInUse(data.getLogin());
+        findByEmail(data.getEmail());
 
         user.setNome(data.getNome());
         user.setEmail(data.getEmail());
         user.setLogin(data.getLogin());
 
         return repository.save(user);
+    }
+
+    private void verifyLoginInUse(String login) {
+        if (repository.findByLogin(login).isPresent()) {
+            throw new UserAlreadyExistsException("Username is not unavailable");
+        }
+    }
+
+    private void findByEmail(String email) {
+        if (repository.findByEmail(email).isPresent()) {
+            throw new UserAlreadyExistsException("Email already in use");
+        }
     }
 
     public List<Usuario> findByName(String nome) {

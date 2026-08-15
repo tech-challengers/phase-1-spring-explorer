@@ -44,8 +44,8 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDateTime dataCadastro = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private LocalDateTime dataAlteracao = null;
+    @Column
+    private LocalDateTime dataAlteracao = LocalDateTime.now();
 
     @OneToMany(
             mappedBy = "usuario",

@@ -7,6 +7,7 @@ import br.com.foodapi.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,6 +16,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1")
 @AllArgsConstructor
 public class UserController implements UsersApi {
 
@@ -27,7 +29,7 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<UsuarioResponse> atualizarUsuario(Long userId, UsuarioAtualizacaoRequest usuarioAtualizacaoRequest) {
-        Usuario user = createUserService.updateUser(userId, usuarioAtualizacaoRequest);
+        Usuario user = userService.updateUser(userId, usuarioAtualizacaoRequest);
 
         return ResponseEntity.ok(
                 new UsuarioResponse(
@@ -89,6 +91,7 @@ public class UserController implements UsersApi {
 
         return ResponseEntity.ok(response);
     }
+
     @Override
     public ResponseEntity<UsuarioResponse> procurarUsuarioPorId(Long userId) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
