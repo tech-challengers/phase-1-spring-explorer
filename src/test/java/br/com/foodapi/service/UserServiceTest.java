@@ -4,6 +4,7 @@ import br.com.foodapi.domain.model.Usuario;
 import br.com.foodapi.generated.model.TipoUsuario;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
+import br.com.foodapi.infra.errors.UserNotFoundException;
 import br.com.foodapi.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,5 +91,35 @@ public class UserServiceTest {
         );
 
         verify(repository, never()).save(any());
+    }
+
+    @Test
+    void shouldDeleteExistingUser() {
+        Long userId = 1L;
+        user.setId(userId);
+
+        when(repository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.deleteUser(userId);
+
+        verify(repository).findById(userId);
+        verify(repository).delete(user);
+    }
+
+    @Test
+    void shouldNotDeleteNonExistingUser() {
+        Long userId = 1L;
+
+        when(repository.findById(userId)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> userService.deleteUser(userId)
+        );
+
+        assertEquals("User not found", exception.getMessage());
+
+        verify(repository).findById(userId);
+        verify(repository, never()).delete(any(Usuario.class));
     }
 }

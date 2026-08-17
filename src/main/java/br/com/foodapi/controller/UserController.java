@@ -69,7 +69,8 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<Void> excluirUsuario(Long userId) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
