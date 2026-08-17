@@ -15,10 +15,12 @@ import java.net.URI;
 import java.time.ZoneOffset;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1")
+import static br.com.foodapi.controller.AbstractController.CONSTANT_PATH;
+
 @AllArgsConstructor
-public class UserController implements UsersApi {
+@RequestMapping(CONSTANT_PATH)
+@RestController
+public class UserController extends AbstractController implements UsersApi {
 
     private final UserService userService;
 
@@ -62,7 +64,7 @@ public class UserController implements UsersApi {
                         user.getLogin(),
                         TipoUsuario.valueOf(user.getTipoUsuario().name()),
                         user.getDataCadastro().atOffset(ZoneOffset.UTC),
-                        user.getDataAlteracao().atOffset(ZoneOffset.UTC)
+                        null
                 )
         );
     }
@@ -95,6 +97,15 @@ public class UserController implements UsersApi {
 
     @Override
     public ResponseEntity<UsuarioResponse> procurarUsuarioPorId(Long userId) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        Usuario user = userService.findById(userId);
+
+        return ResponseEntity.ok(UsuarioResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nome(user.getNome())
+                .login(user.getLogin())
+                .tipoUsuario(TipoUsuario.valueOf(user.getTipoUsuario().name()))
+                .dataCadastro(user.getDataCadastro().atOffset(ZoneOffset.UTC))
+                .build());
     }
 }
