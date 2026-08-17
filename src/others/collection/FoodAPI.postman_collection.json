@@ -1,100 +1,425 @@
 {
   "info": {
     "name": "Food API",
+    "description": "Collection gerada a partir do contrato OpenAPI em src/main/resources/openapi/swagger.yml.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": []
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": []
+      }
+    }
+  ],
   "item": [
     {
-      "name": "auth",
+      "name": "Authentication",
       "item": [
         {
           "name": "POST /auth/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login realizado\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "if (response.token) {",
+                  "  pm.environment.set(\"token\", response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "url": "{{baseUrl}}/auth/login"
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{login}}\",\n  \"senha\": \"{{senha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "users",
+      "name": "Users",
       "item": [
         {
           "name": "POST /users",
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "url": "{{baseUrl}}/users"
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Joao da Silva\",\n  \"email\": \"joao@example.com\",\n  \"login\": \"{{login}}\",\n  \"senha\": \"{{senha}}\",\n  \"tipoUsuario\": \"CLIENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "GET /users",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/users"
-          }
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?nome={{nome}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}"
+                }
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "GET /users/{userId}",
+          "name": "GET /users/:userId",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/users/{userId}"
-          }
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "PUT /users/{userId}",
+          "name": "PUT /users/:userId",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/users/{userId}"
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Joao da Silva\",\n  \"email\": \"joao@example.com\",\n  \"login\": \"{{login}}\",\n  \"tipoUsuario\": \"CLIENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "DELETE /users/{userId}",
+          "name": "DELETE /users/:userId",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/users/{userId}"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "PATCH /users/{userId}/senha",
+          "name": "PATCH /users/:userId/senha",
           "request": {
             "method": "PATCH",
-            "url": "{{baseUrl}}/users/{userId}/senha"
-          }
-        },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senhaAtual\": \"{{senha}}\",\n  \"novaSenha\": \"NovaSenha@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/senha",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "senha"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
         {
-          "name": "POST /users/{userId}/enderecos",
+          "name": "POST /users/:userId/enderecos",
           "request": {
             "method": "POST",
-            "url": "{{baseUrl}}/users/{userId}/enderecos"
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logradouro\": \"Avenida Paulista\",\n  \"numero\": \"1000\",\n  \"bairro\": \"Bela Vista\",\n  \"cidade\": \"Sao Paulo\",\n  \"cep\": \"01310100\",\n  \"complemento\": \"Apartamento 101\",\n  \"estado\": \"SP\",\n  \"pais\": \"Brasil\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/enderecos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "enderecos"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "GET /users/{userId}/enderecos",
+          "name": "GET /users/:userId/enderecos",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/users/{userId}/enderecos"
-          }
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/enderecos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "enderecos"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "GET /users/{userId}/enderecos/{enderecoId}",
+          "name": "GET /users/:userId/enderecos/:enderecoId",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/users/{userId}/enderecos/{enderecoId}"
-          }
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/enderecos/{{enderecoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "enderecos",
+                "{{enderecoId}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "PUT /users/{userId}/enderecos/{enderecoId}",
+          "name": "PUT /users/:userId/enderecos/:enderecoId",
           "request": {
             "method": "PUT",
-            "url": "{{baseUrl}}/users/{userId}/enderecos/{enderecoId}"
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logradouro\": \"Avenida Paulista\",\n  \"numero\": \"1000\",\n  \"bairro\": \"Bela Vista\",\n  \"cidade\": \"Sao Paulo\",\n  \"cep\": \"01310100\",\n  \"complemento\": \"Apartamento 101\",\n  \"estado\": \"SP\",\n  \"pais\": \"Brasil\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/enderecos/{{enderecoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "enderecos",
+                "{{enderecoId}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "DELETE /users/{userId}/enderecos/{enderecoId}",
+          "name": "DELETE /users/:userId/enderecos/:enderecoId",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/users/{userId}/enderecos/{enderecoId}"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/enderecos/{{enderecoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "enderecos",
+                "{{enderecoId}}"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

@@ -9,7 +9,10 @@ info:
     Projeto desenvolvido seguindo API First.
 
 servers:
-  - url: http://localhost:8080/api/v1
+  - url: http://localhost:8080
+
+security:
+  - bearerAuth: []
 
 tags:
   - name: Authentication
@@ -25,6 +28,7 @@ paths:
 
   /auth/login:
     post:
+      security: []
       tags:
         - Authentication
 
@@ -60,6 +64,7 @@ paths:
 
   /users:
     post:
+      security: []
       tags:
         - Users
 
@@ -355,6 +360,14 @@ paths:
 
 components:
 
+  securitySchemes:
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Informe o token JWT retornado em `/auth/login`.
+
   parameters:
 
     UserId:
@@ -465,16 +478,17 @@ components:
 
       required:
         - authenticated
-        - message
+        - token
 
       properties:
         authenticated:
           type: boolean
           example: true
 
-        message:
+        token:
           type: string
-          example: Login realizado com sucesso
+          description: Token JWT para envio no header `Authorization: Bearer <token>`.
+          example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2FvIn0.signature
 
     UsuarioCadastroRequest:
       type: object
@@ -815,4 +829,4 @@ components:
 
         instance:
           type: string
-          example: /api/v1/users/1
+          example: /users/1
