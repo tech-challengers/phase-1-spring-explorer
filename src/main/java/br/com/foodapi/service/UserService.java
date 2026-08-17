@@ -68,4 +68,7 @@ public class UserService {
         return repository.findByNomeContainingIgnoreCase(nome);
     }
 
+    public Usuario findById(Long userId) {
+        return repository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
 }

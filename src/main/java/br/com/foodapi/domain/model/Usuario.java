@@ -45,8 +45,7 @@ public class Usuario {
     private LocalDateTime dataCadastro = LocalDateTime.now();
 
     @Column
-    private LocalDateTime dataAlteracao = LocalDateTime.now();
-
+    private LocalDateTime dataAlteracao;
     @OneToMany(
             mappedBy = "usuario",
             cascade = CascadeType.ALL,

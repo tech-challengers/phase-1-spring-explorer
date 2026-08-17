@@ -32,7 +32,6 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-
         Problem problem = new Problem();
 
         problem.type("about:blank");
@@ -53,6 +52,8 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         problem.setStatus(HttpStatus.NOT_FOUND.value());
         problem.setTitle("Not Found");
         problem.setDetail(ex.getMessage());
+        problem.setType("User not found");
+        problem.instance("/exception");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 
