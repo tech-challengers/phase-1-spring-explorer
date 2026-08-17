@@ -12,9 +12,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import static br.com.foodapi.controller.AbstractController.CONSTANT_PATH;
 
 @RequiredArgsConstructor
-public class AuthController implements AuthenticationApi {
+@RequestMapping(CONSTANT_PATH)
+@RestController
+public class AuthController extends AbstractController implements AuthenticationApi  {
 
     private final AuthenticationManager authenticationManager;
 
