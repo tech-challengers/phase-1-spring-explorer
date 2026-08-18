@@ -1,5 +1,6 @@
 package br.com.foodapi.service;
 
+import br.com.foodapi.domain.factory.UserFactory;
 import br.com.foodapi.domain.model.Usuario;
 import br.com.foodapi.generated.model.UsuarioAtualizacaoRequest;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
@@ -24,15 +25,10 @@ public class UserService {
 
     @Transactional
     public Usuario createUser(UsuarioCadastroRequest data) throws UserAlreadyExistsException {
-        if (repository.findByEmail(data.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("Email already in use");
-        }
+        this.findByEmail(data.getEmail());
+        this.verifyLoginInUse(data.getLogin());
 
-        if (repository.findByLogin(data.getLogin()).isPresent()) {
-            throw new UserAlreadyExistsException("Username is not unavailable");
-        }
-
-        Usuario user = new Usuario(data, this.passwordEncoder.encode(data.getSenha()));
+        Usuario user = UserFactory.create(data, this.passwordEncoder.encode(data.getSenha()));
         return this.repository.save(user);
     }
 

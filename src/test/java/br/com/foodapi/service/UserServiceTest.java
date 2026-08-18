@@ -1,5 +1,7 @@
 package br.com.foodapi.service;
 
+import br.com.foodapi.domain.model.Cliente;
+import br.com.foodapi.domain.model.DonoRestaurante;
 import br.com.foodapi.domain.model.Usuario;
 import br.com.foodapi.generated.model.TipoUsuario;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -63,6 +66,34 @@ public class UserServiceTest {
         assertEquals("johndoe@email.com", user.getEmail());
         assertEquals("johndoe", user.getLogin());
         assertEquals("encoded-password", user.getSenha());
+        assertInstanceOf(Cliente.class, user);
+
+        verify(repository).save(user);
+        verify(passwordEncoder).encode("SomePasswordValid!@#");
+    }
+
+    @Test
+    void shouldCreateRestaurantOwnerWithValidEmailAndLogin() {
+        UsuarioCadastroRequest restaurantOwnerDTO = new UsuarioCadastroRequest(
+                "Jane Doe",
+                "janedoe@email.com",
+                "janedoe",
+                "SomePasswordValid!@#",
+                TipoUsuario.DONO_RESTAURANTE
+        );
+
+        when(repository.findByEmail("janedoe@email.com")).thenReturn(Optional.empty());
+        when(repository.findByLogin("janedoe")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("SomePasswordValid!@#")).thenReturn("encoded-password");
+        when(repository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Usuario user = userService.createUser(restaurantOwnerDTO);
+
+        assertEquals("Jane Doe", user.getNome());
+        assertEquals("janedoe@email.com", user.getEmail());
+        assertEquals("janedoe", user.getLogin());
+        assertEquals("encoded-password", user.getSenha());
+        assertInstanceOf(DonoRestaurante.class, user);
 
         verify(repository).save(user);
         verify(passwordEncoder).encode("SomePasswordValid!@#");
