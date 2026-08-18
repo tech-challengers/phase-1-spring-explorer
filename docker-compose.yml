@@ -6,8 +6,12 @@ services:
     container_name: mysql-tech-challenge
     environment:
       MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     volumes:
       - mysql_data:/var/lib/mysql
   app:
@@ -16,8 +20,13 @@ services:
     container_name: spring-tech-challenge
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/restaurant_db?createDatabaseIfNotExist=true&serverTimezone=America/Sao_Paulo
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
 volumes:
   mysql_data:
