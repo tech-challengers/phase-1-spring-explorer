@@ -5,7 +5,6 @@ import br.com.foodapi.generated.api.UsersApi;
 import br.com.foodapi.generated.model.*;
 import br.com.foodapi.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

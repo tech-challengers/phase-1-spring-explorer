@@ -1,6 +1,7 @@
 package br.com.foodapi.controller;
 
 import br.com.foodapi.generated.model.Problem;
+import br.com.foodapi.infra.errors.InvalidPasswordException;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
 import br.com.foodapi.infra.errors.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -66,5 +67,16 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         problem.setType("about:blank");
         problem.setInstance("/exception");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<Problem> handleInvalidPassword(InvalidPasswordException ex) {
+        Problem problem = new Problem();
+        problem.setStatus(HttpStatus.BAD_REQUEST.value());
+        problem.setTitle("Bad Request");
+        problem.setDetail(ex.getMessage());
+        problem.setType("about:blank");
+        problem.setInstance("/exception");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 }
