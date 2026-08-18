@@ -6,6 +6,7 @@ import br.com.foodapi.domain.model.Usuario;
 import br.com.foodapi.generated.model.AlteracaoSenhaRequest;
 import br.com.foodapi.generated.model.TipoUsuario;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
+import br.com.foodapi.infra.errors.InvalidPasswordException;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
 import br.com.foodapi.infra.errors.UserNotFoundException;
 import br.com.foodapi.repository.UserRepository;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -182,8 +182,8 @@ public class UserServiceTest {
 
         when(passwordEncoder.matches(data.getSenhaAtual(), user.getSenha())).thenReturn(false);
 
-        BadCredentialsException exception = assertThrows(
-                BadCredentialsException.class,
+        InvalidPasswordException exception = assertThrows(
+                InvalidPasswordException.class,
                 () -> userService.updateUserPassword(user.getId(), data)
         );
 
@@ -202,8 +202,8 @@ public class UserServiceTest {
 
         when(passwordEncoder.matches(data.getSenhaAtual(), user.getSenha())).thenReturn(true);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        InvalidPasswordException exception = assertThrows(
+                InvalidPasswordException.class,
                 () -> userService.updateUserPassword(user.getId(), data)
         );
 
