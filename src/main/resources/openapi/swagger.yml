@@ -9,7 +9,7 @@ info:
     Projeto desenvolvido seguindo API First.
 
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8080/api/v1
 
 security:
   - bearerAuth: []
@@ -45,8 +45,8 @@ paths:
               credenciais:
                 summary: Credenciais de exemplo
                 value:
-                  login: joao
-                  senha: "Senha@123"
+                  login: fulano
+                  senha: "12345678"
 
       responses:
         "200":
@@ -108,7 +108,7 @@ paths:
           schema:
             type: string
             minLength: 1
-          example: João
+          example: Fulano
 
       responses:
         "200":
@@ -450,7 +450,7 @@ components:
       enum:
         - CLIENTE
         - DONO_RESTAURANTE
-      example: CLIENTE
+      example: DONO_RESTAURANTE
 
     LoginRequest:
       type: object
@@ -464,14 +464,14 @@ components:
           type: string
           minLength: 3
           maxLength: 60
-          example: joao
+          example: fulano
 
         senha:
           type: string
           format: password
           minLength: 8
           writeOnly: true
-          example: "Senha@123"
+          example: "12345678"
 
     LoginResponse:
       type: object
@@ -487,7 +487,7 @@ components:
 
         token:
           type: string
-          description: Token JWT para envio no header `Authorization: Bearer <token>`.
+          description: "Token JWT para envio no header `Authorization: Bearer <token>`."
           example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2FvIn0.signature
 
     UsuarioCadastroRequest:
@@ -505,26 +505,26 @@ components:
           type: string
           minLength: 3
           maxLength: 120
-          example: João da Silva
+          example: Fulano
 
         email:
           type: string
           format: email
           maxLength: 254
-          example: joao@example.com
+          example: fulano@email.com
 
         login:
           type: string
           minLength: 3
           maxLength: 60
-          example: joao
+          example: fulano
 
         senha:
           type: string
           format: password
           minLength: 8
           writeOnly: true
-          example: "Senha@123"
+          example: "12345678"
 
         tipoUsuario:
           $ref: '#/components/schemas/TipoUsuario'
@@ -543,19 +543,19 @@ components:
           type: string
           minLength: 3
           maxLength: 120
-          example: João da Silva
+          example: Siclano
 
         email:
           type: string
           format: email
           maxLength: 254
-          example: joao@example.com
+          example: siclano@email.com
 
         login:
           type: string
           minLength: 3
           maxLength: 60
-          example: joao
+          example: siclano
 
         tipoUsuario:
           $ref: '#/components/schemas/TipoUsuario'
@@ -573,7 +573,7 @@ components:
           format: password
           minLength: 8
           writeOnly: true
-          example: "Senha@123"
+          example: "12345678"
 
         novaSenha:
           type: string
@@ -603,16 +603,16 @@ components:
 
         nome:
           type: string
-          example: João da Silva
+          example: Fulano
 
         email:
           type: string
           format: email
-          example: joao@example.com
+          example: fulano@email.com
 
         login:
           type: string
-          example: joao
+          example: fulano
 
         tipoUsuario:
           $ref: '#/components/schemas/TipoUsuario'

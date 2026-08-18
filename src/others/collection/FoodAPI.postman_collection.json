@@ -115,7 +115,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Joao da Silva\",\n  \"email\": \"joao@example.com\",\n  \"login\": \"{{login}}\",\n  \"senha\": \"{{senha}}\",\n  \"tipoUsuario\": \"CLIENTE\"\n}",
+              "raw": "{\n  \"nome\": \"Fulano\",\n  \"email\": \"fulano@email.com\",\n  \"login\": \"fulano\",\n  \"senha\": \"12345678\",\n  \"tipoUsuario\": \"DONO_RESTAURANTE\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -201,7 +201,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Joao da Silva\",\n  \"email\": \"joao@example.com\",\n  \"login\": \"{{login}}\",\n  \"tipoUsuario\": \"CLIENTE\"\n}",
+              "raw": "{\n  \"nome\": \"Siclano\",\n  \"email\": \"siclano@email.com\",\n  \"login\": \"siclano\",\n  \"tipoUsuario\": \"CLIENTE\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -251,7 +251,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"senhaAtual\": \"{{senha}}\",\n  \"novaSenha\": \"NovaSenha@123\"\n}",
+              "raw": "{\n  \"senhaAtual\": \"12345678\",\n  \"novaSenha\": \"NovaSenha@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
