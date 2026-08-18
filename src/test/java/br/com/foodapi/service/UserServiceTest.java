@@ -3,6 +3,7 @@ package br.com.foodapi.service;
 import br.com.foodapi.domain.model.Cliente;
 import br.com.foodapi.domain.model.DonoRestaurante;
 import br.com.foodapi.domain.model.Usuario;
+import br.com.foodapi.generated.model.AlteracaoSenhaRequest;
 import br.com.foodapi.generated.model.TipoUsuario;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -51,6 +53,7 @@ public class UserServiceTest {
         );
 
         this.user = new Usuario(this.userDTO, "encoded-password");
+        this.user.setId(1L);
     }
 
     @Test
@@ -152,5 +155,82 @@ public class UserServiceTest {
 
         verify(repository).findById(userId);
         verify(repository, never()).delete(any(Usuario.class));
+    }
+
+    @Test
+    void shouldNotUpdatePasswordFromUserNotFound() {
+        when(repository.findById(user.getId())).thenReturn(Optional.empty());
+
+        AlteracaoSenhaRequest data = new AlteracaoSenhaRequest(this.userDTO.getSenha(), "NewPassword!@#2026");
+
+        UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                () -> userService.updateUserPassword(user.getId(), data)
+        );
+
+        assertEquals("User not found", exception.getMessage());
+
+        verify(repository).findById(user.getId());
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void shouldNotUpdateUserIncorrectPassword() {
+        when(repository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        AlteracaoSenhaRequest data = new AlteracaoSenhaRequest("INVALID_PASSWORD", "NewPassword!@#2026");
+
+        when(passwordEncoder.matches(data.getSenhaAtual(), user.getSenha())).thenReturn(false);
+
+        BadCredentialsException exception = assertThrows(
+                BadCredentialsException.class,
+                () -> userService.updateUserPassword(user.getId(), data)
+        );
+
+        assertEquals("Current password is invalid", exception.getMessage());
+
+        verify(repository).findById(user.getId());
+        verify(passwordEncoder).matches(data.getSenhaAtual(), user.getSenha());
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void shouldNotUpdatePasswordEqualsToPreviousOne() {
+        when(repository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        AlteracaoSenhaRequest data = new AlteracaoSenhaRequest(this.userDTO.getSenha(), this.userDTO.getSenha());
+
+        when(passwordEncoder.matches(data.getSenhaAtual(), user.getSenha())).thenReturn(true);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.updateUserPassword(user.getId(), data)
+        );
+
+        assertEquals("New password must be different from current password", exception.getMessage());
+
+        verify(repository).findById(user.getId());
+        verify(passwordEncoder, times(2)).matches(data.getSenhaAtual(), user.getSenha());
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void shouldBeAbleToUpdateUsersPassword() {
+        when(repository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        AlteracaoSenhaRequest data = new AlteracaoSenhaRequest(this.userDTO.getSenha(), "NewValidPassword!@#2026");
+
+        when(passwordEncoder.matches(data.getSenhaAtual(), user.getSenha())).thenReturn(true);
+        when(passwordEncoder.matches(data.getNovaSenha(), user.getSenha())).thenReturn(false);
+        when(passwordEncoder.encode(data.getNovaSenha())).thenReturn("new-encoded-password");
+
+        userService.updateUserPassword(user.getId(), data);
+
+        assertEquals("new-encoded-password", user.getSenha());
+        verify(repository).findById(user.getId());
+        verify(passwordEncoder).matches(data.getSenhaAtual(), "encoded-password");
+        verify(passwordEncoder).matches(data.getNovaSenha(), "encoded-password");
+        verify(passwordEncoder).encode(data.getNovaSenha());
+        verify(repository).save(user);
     }
 }

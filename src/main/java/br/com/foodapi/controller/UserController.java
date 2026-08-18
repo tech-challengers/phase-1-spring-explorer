@@ -26,7 +26,8 @@ public class UserController extends AbstractController implements UsersApi {
 
     @Override
     public ResponseEntity<Void> alterarSenhaUsuario(Long userId, AlteracaoSenhaRequest alteracaoSenhaRequest) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        userService.updateUserPassword(userId, alteracaoSenhaRequest);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

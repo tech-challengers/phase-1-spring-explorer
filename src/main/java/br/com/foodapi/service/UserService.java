@@ -2,6 +2,7 @@ package br.com.foodapi.service;
 
 import br.com.foodapi.domain.factory.UserFactory;
 import br.com.foodapi.domain.model.Usuario;
+import br.com.foodapi.generated.model.AlteracaoSenhaRequest;
 import br.com.foodapi.generated.model.UsuarioAtualizacaoRequest;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
@@ -9,6 +10,7 @@ import br.com.foodapi.infra.errors.UserNotFoundException;
 import br.com.foodapi.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +69,29 @@ public class UserService {
         user.setLogin(data.getLogin());
 
         return repository.save(user);
+    }
+
+    @Transactional
+    public void updateUserPassword(Long userId, AlteracaoSenhaRequest alteracaoSenhaRequest) {
+        Usuario user = this.findById(userId);
+
+        boolean isCurrentPasswordNotValid = !passwordEncoder
+                .matches(alteracaoSenhaRequest.getSenhaAtual(), user.getSenha());
+
+        if (isCurrentPasswordNotValid) {
+            throw new BadCredentialsException("Current password is invalid");
+        }
+
+        boolean isNewPasswordEqualsPrevious = passwordEncoder
+                .matches(alteracaoSenhaRequest.getNovaSenha(), user.getSenha());
+
+        if (isNewPasswordEqualsPrevious) {
+            throw new IllegalArgumentException("New password must be different from current password");
+        }
+
+        user.setSenha(passwordEncoder.encode(alteracaoSenhaRequest.getNovaSenha()));
+
+        this.repository.save(user);
     }
 
     private void verifyLoginInUse(String login) {
