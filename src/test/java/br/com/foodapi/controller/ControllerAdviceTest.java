@@ -2,6 +2,8 @@ package br.com.foodapi.controller;
 
 import br.com.foodapi.domain.model.TipoUsuario;
 import br.com.foodapi.domain.model.Usuario;
+import br.com.foodapi.generated.model.AlteracaoSenhaRequest;
+import br.com.foodapi.infra.errors.InvalidPasswordException;
 import br.com.foodapi.infra.errors.UserNotFoundException;
 import br.com.foodapi.service.CustomUserDetailsService;
 import br.com.foodapi.service.JwtService;
@@ -17,9 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -108,6 +113,45 @@ class ControllerAdviceTest {
                 .andExpect(jsonPath("$.detail").value("User not found"))
                 .andExpect(jsonPath("$.instance").value("/exception"));
     }
+
+    @Test
+    void deveRetornarBadRequestQuandoSenhaAtualForInvalida() throws Exception {
+        doThrow(new InvalidPasswordException("Current password is invalid"))
+                .when(userService)
+                .updateUserPassword(anyLong(), any(AlteracaoSenhaRequest.class));
+
+        mockMvc.perform(patch("/api/v1/users/{userId}/senha", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "senhaAtual":"senha-incorreta",
+                                    "novaSenha":"NovaSenha@123"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Current password is invalid"));
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoNovaSenhaForIgualAAtual() throws Exception {
+        doThrow(new InvalidPasswordException("New password must be different from current password"))
+                .when(userService)
+                .updateUserPassword(anyLong(), any(AlteracaoSenhaRequest.class));
+
+        mockMvc.perform(patch("/api/v1/users/{userId}/senha", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "senhaAtual":"SenhaAtual@123",
+                                    "novaSenha":"SenhaAtual@123"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("New password must be different from current password"));    }
 
 
 }
