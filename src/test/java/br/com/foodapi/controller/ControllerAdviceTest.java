@@ -21,8 +21,7 @@ import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -152,6 +151,99 @@ class ControllerAdviceTest {
                 .andExpect(jsonPath("$.title").value("Bad Request"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").value("New password must be different from current password"));    }
+    @Test
+    void deveRetornarBadRequestQuandoEmailForInvalido() throws Exception {
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "nome": "Fulano",
+                                "email": "email-invalido",
+                                "login": "fulano",
+                                "senha": "Senha@123",
+                                "tipoUsuario": "CLIENTE"
+                            }
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+    @Test
+    void deveRetornarBadRequestQuandoSenhaNaoTiverMaiuscula() throws Exception {
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "nome": "Fulano",
+                                "email": "fulano@email.com",
+                                "login": "fulano",
+                                "senha": "senha@123",
+                                "tipoUsuario": "CLIENTE"
+                            }
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+    @Test
+    void deveRetornarBadRequestQuandoNovaSenhaForFraca() throws Exception {
+
+        mockMvc.perform(patch("/api/v1/users/{userId}/senha", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                                "senhaAtual": "12345678",
+                                "novaSenha": "senha123"
+                            }
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400));
+
+        verify(userService, never())
+                .updateUserPassword(
+                        anyLong(),
+                        any(AlteracaoSenhaRequest.class)
+                );
+    }
+    @Test
+    void deveRetornarBadRequestQuandoSenhaNaoTiverNumero() throws Exception {
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "nome": "Fulano",
+                            "email": "fulano@email.com",
+                            "login": "fulano",
+                            "senha": "Senha@Teste",
+                            "tipoUsuario": "CLIENTE"
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+    @Test
+    void deveRetornarBadRequestQuandoSenhaNaoTiverCaractereEspecial() throws Exception {
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "nome": "Fulano",
+                            "email": "fulano@email.com",
+                            "login": "fulano",
+                            "senha": "Senha123",
+                            "tipoUsuario": "CLIENTE"
+                        }
+                        """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
 
 
 }
