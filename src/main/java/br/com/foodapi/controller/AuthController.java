@@ -3,7 +3,6 @@ package br.com.foodapi.controller;
 import br.com.foodapi.generated.api.AuthenticationApi;
 import br.com.foodapi.generated.model.LoginRequest;
 import br.com.foodapi.generated.model.LoginResponse;
-import br.com.foodapi.repository.UserRepository;
 import br.com.foodapi.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,13 +18,9 @@ import static br.com.foodapi.controller.AbstractController.CONSTANT_PATH;
 @RequiredArgsConstructor
 @RequestMapping(CONSTANT_PATH)
 @RestController
-public class AuthController extends AbstractController implements AuthenticationApi  {
+public class AuthController extends AbstractController implements AuthenticationApi {
 
     private final AuthenticationManager authenticationManager;
-
-    private final UserRepository userRepository;
-
-    private final PasswordEncoder passwordEncoder;
 
     private final JwtService jwtService;
 
@@ -40,11 +34,9 @@ public class AuthController extends AbstractController implements Authentication
                         )
                 );
 
-        UserDetails userDetails =
-                (UserDetails) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        String token =
-                jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(userDetails);
 
         return ResponseEntity.ok(
                 new LoginResponse(true, token)

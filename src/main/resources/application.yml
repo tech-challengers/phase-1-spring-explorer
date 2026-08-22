@@ -8,11 +8,15 @@ spring:
     hibernate:
       ddl-auto: update
 
-    show-sql: true
+    show-sql: false
 
     properties:
       hibernate:
         format_sql: true
+
+logging:
+  level:
+    root: info
 
 springdoc:
   swagger-ui:
