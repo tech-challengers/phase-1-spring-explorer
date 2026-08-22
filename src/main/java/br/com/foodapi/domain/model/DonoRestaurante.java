@@ -11,6 +11,4 @@ import lombok.*;
 
 public class DonoRestaurante extends Usuario {
 
-
-
 }

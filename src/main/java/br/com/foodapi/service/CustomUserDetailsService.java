@@ -28,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(),
                 user.getSenha(),
-                List.of(new SimpleGrantedAuthority(user.getTipoUsuario().name())) //TODO needs fix rule implementation
+                List.of(new SimpleGrantedAuthority(user.getTipoUsuario().name()))
         );
     }
 }
