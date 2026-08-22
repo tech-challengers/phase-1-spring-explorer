@@ -511,6 +511,7 @@ components:
           type: string
           format: email
           maxLength: 254
+          pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
           example: fulano@email.com
 
         login:
@@ -523,8 +524,9 @@ components:
           type: string
           format: password
           minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
           writeOnly: true
-          example: "12345678"
+          example: "Senha@123"
 
         tipoUsuario:
           $ref: '#/components/schemas/TipoUsuario'
@@ -549,6 +551,7 @@ components:
           type: string
           format: email
           maxLength: 254
+          pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
           example: siclano@email.com
 
         login:
@@ -579,6 +582,7 @@ components:
           type: string
           format: password
           minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
           writeOnly: true
           example: "NovaSenha@123"
 
