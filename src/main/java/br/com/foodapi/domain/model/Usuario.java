@@ -59,6 +59,7 @@ public class Usuario implements UserDetails {
     @PrePersist
     private void prePersist() {
         this.dataCadastro = LocalDateTime.now();
+        this.dataAlteracao = LocalDateTime.now();
     }
 
     @PreUpdate
