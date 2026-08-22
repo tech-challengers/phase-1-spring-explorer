@@ -2,11 +2,13 @@ package br.com.foodapi.infra.security;
 
 import br.com.foodapi.service.CustomUserDetailsService;
 import br.com.foodapi.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @AllArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -39,15 +42,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
+            String login = jwtService.extractLogin(token);
 
-            String username = jwtService.extractUsername(token);
+            if (login != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                UserDetails user = customUserDetailsService.loadUserByUsername(username);
+                UserDetails user = customUserDetailsService.loadUserByUsername(login);
 
                 if (jwtService.isTokenValid(token, user)) {
-
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     user,
@@ -56,15 +57,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             );
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
 
+        } catch (ExpiredJwtException e) {
+            log.warn("Token JWT expirado: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Token expirado. Faça login novamente.\"}");
+            return; // Interrompe a cadeia de filtros
         } catch (Exception e) {
-
-            // Token inválido/expirado.
-            // A requisição continuará sem autenticação.
+            log.error("Erro ao processar autenticação JWT: {}", e.getMessage(), e);
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

@@ -88,7 +88,7 @@ public class UserController extends AbstractController implements UsersApi {
                         user.getLogin(),
                         TipoUsuario.valueOf(user.getTipoUsuario().name()),
                         user.getDataCadastro().atOffset(ZoneOffset.UTC),
-                        user.getDataAlteracao().atOffset(ZoneOffset.UTC)
+                        null
                 ))
                 .toList();
 

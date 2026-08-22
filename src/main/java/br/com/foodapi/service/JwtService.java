@@ -30,8 +30,7 @@ public class JwtService {
 
         Date now = new Date();
 
-        Date expirationDate =
-                new Date(now.getTime() + expiration);
+        Date expirationDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())
