@@ -3,7 +3,6 @@ package br.com.foodapi.domain.model;
 import br.com.foodapi.generated.model.UsuarioCadastroRequest;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -30,7 +29,6 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String nome;
 
-    @NaturalId
     @Column(nullable = false, unique = true)
     private String email;
 
