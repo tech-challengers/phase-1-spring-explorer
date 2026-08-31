@@ -149,7 +149,11 @@
                   "pm.environment.set(\"postmanTestNome\", \"Usuario Postman\");",
                   "pm.environment.set(\"postmanTestEmail\", `postman.${unique}@email.com`);",
                   "pm.environment.set(\"postmanTestLogin\", `postman_${unique}`);",
-                  "pm.environment.set(\"postmanTestSenha\", \"12345678\");"
+                  "pm.environment.set(\"postmanTestSenha\", \"12345678\");",
+                  "pm.environment.set(\"postmanTestNovoNome\", \"Usuario Postman Atualizado\");",
+                  "pm.environment.set(\"postmanTestNovoEmail\", `postman.updated.${unique}@email.com`);",
+                  "pm.environment.set(\"postmanTestNovoLogin\", `postman_updated_${unique}`);",
+                  "pm.environment.set(\"postmanTestNovaSenha\", \"NovaSenha@123\");"
                 ]
               }
             },
@@ -158,19 +162,20 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Controller e service criam o usuario\", function () {",
+                  "pm.test(\"POST /users retorna 201\", function () {",
                   "  pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "pm.test(\"Resposta contem os dados criados\", function () {",
-                  "  const response = pm.response.json();",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Usuario foi criado pelo controller/service\", function () {",
                   "  pm.expect(response.id).to.be.a(\"number\");",
                   "  pm.expect(response.nome).to.eql(pm.environment.get(\"postmanTestNome\"));",
                   "  pm.expect(response.email).to.eql(pm.environment.get(\"postmanTestEmail\"));",
                   "  pm.expect(response.login).to.eql(pm.environment.get(\"postmanTestLogin\"));",
-                  "  pm.expect(response.tipoUsuario).to.eql(\"DONO_RESTAURANTE\");",
-                  "  pm.environment.set(\"postmanTestUserId\", response.id);",
-                  "});"
+                  "});",
+                  "",
+                  "pm.environment.set(\"postmanTestUserId\", response.id);"
                 ]
               }
             }
@@ -212,6 +217,268 @@
           "response": []
         },
         {
+          "name": "PASS - POST /auth/login autentica usuario criado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"POST /auth/login retorna 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Login retorna token JWT\", function () {",
+                  "  pm.expect(response.sucesso).to.eql(true);",
+                  "  pm.expect(response.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.environment.set(\"token\", response.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{postmanTestLogin}}\",\n  \"senha\": \"{{postmanTestSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PASS - GET /users busca por nome",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.url.query.upsert({ key: \"nome\", value: pm.environment.get(\"postmanTestNome\") });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"GET /users retorna 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Lista contem o usuario criado\", function () {",
+                  "  pm.expect(response).to.be.an(\"array\");",
+                  "  pm.expect(response.some(user => user.id === Number(pm.environment.get(\"postmanTestUserId\")))).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PASS - GET /users/:userId busca por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"GET /users/:userId retorna 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Retorna o usuario criado\", function () {",
+                  "  pm.expect(response.id).to.eql(Number(pm.environment.get(\"postmanTestUserId\")));",
+                  "  pm.expect(response.login).to.eql(pm.environment.get(\"postmanTestLogin\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{postmanTestUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{postmanTestUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PASS - PUT /users/:userId atualiza usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PUT /users/:userId retorna 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Usuario foi atualizado pelo service\", function () {",
+                  "  pm.expect(response.nome).to.eql(pm.environment.get(\"postmanTestNovoNome\"));",
+                  "  pm.expect(response.email).to.eql(pm.environment.get(\"postmanTestNovoEmail\"));",
+                  "  pm.expect(response.login).to.eql(pm.environment.get(\"postmanTestNovoLogin\"));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{postmanTestNovoNome}}\",\n  \"email\": \"{{postmanTestNovoEmail}}\",\n  \"login\": \"{{postmanTestNovoLogin}}\",\n  \"tipoUsuario\": \"DONO_RESTAURANTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{postmanTestUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{postmanTestUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PASS - PATCH /users/:userId/senha altera senha",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PATCH /users/:userId/senha retorna 204\", function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senhaAtual\": \"{{postmanTestSenha}}\",\n  \"novaSenha\": \"{{postmanTestNovaSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{postmanTestUserId}}/senha",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{postmanTestUserId}}",
+                "senha"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "PASS - POST /users erro esperado no service",
           "event": [
             {
@@ -219,12 +486,13 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"API rejeita usuario duplicado\", function () {",
+                  "pm.test(\"POST /users duplicado retorna 409\", function () {",
                   "  pm.response.to.have.status(409);",
                   "});",
                   "",
+                  "const response = pm.response.json();",
+                  "",
                   "pm.test(\"Postman passa porque o erro era esperado\", function () {",
-                  "  const response = pm.response.json();",
                   "  pm.expect(response.status).to.eql(409);",
                   "  pm.expect(response.detail).to.eql(\"Email already in use\");",
                   "});"
@@ -249,7 +517,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"{{postmanTestNome}}\",\n  \"email\": \"{{postmanTestEmail}}\",\n  \"login\": \"{{postmanTestLogin}}\",\n  \"senha\": \"{{postmanTestSenha}}\",\n  \"tipoUsuario\": \"DONO_RESTAURANTE\"\n}",
+              "raw": "{\n  \"nome\": \"{{postmanTestNovoNome}}\",\n  \"email\": \"{{postmanTestNovoEmail}}\",\n  \"login\": \"{{postmanTestNovoLogin}}\",\n  \"senha\": \"{{postmanTestSenha}}\",\n  \"tipoUsuario\": \"DONO_RESTAURANTE\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -289,6 +557,42 @@
           ],
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{postmanTestUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{postmanTestUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PASS - DELETE /users/:userId exclui usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"DELETE /users/:userId retorna 204\", function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
             "header": [
               {
                 "key": "Accept",
