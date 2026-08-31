@@ -25,6 +25,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,10 +70,10 @@ class ControllerAdviceTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.title").value("Bad Request"))
+                .andExpect(jsonPath("$.title").value("Dados Inválidos"))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail")
-                        .value("nome: Nome é obrigatório"))
+                        .value("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente."))
                 .andExpect(jsonPath("$.instance")
                         .value("/test/validation"));
     }
@@ -150,57 +151,67 @@ class ControllerAdviceTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Bad Request"))
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.detail").value("New password must be different from current password"));    }
+                .andExpect(jsonPath("$.detail").value("New password must be different from current password"));
+    }
+
     @Test
     void deveRetornarBadRequestQuandoEmailForInvalido() throws Exception {
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                                "nome": "Fulano",
-                                "email": "email-invalido",
-                                "login": "fulano",
-                                "senha": "Senha@123",
-                                "tipoUsuario": "CLIENTE"
-                            }
-                            """))
+                                {
+                                    "nome": "Fulano",
+                                    "email": "email-invalido",
+                                    "login": "fulano",
+                                    "senha": "Senha@123",
+                                    "tipoUsuario": "CLIENTE"
+                                }
+                                """))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.status").value(400));
+                .andExpect(jsonPath("$.title").value("Dados Inválidos"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente."));
     }
+
     @Test
     void deveRetornarBadRequestQuandoSenhaNaoTiverMaiuscula() throws Exception {
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                                "nome": "Fulano",
-                                "email": "fulano@email.com",
-                                "login": "fulano",
-                                "senha": "senha@123",
-                                "tipoUsuario": "CLIENTE"
-                            }
-                            """))
+                                {
+                                    "nome": "Fulano",
+                                    "email": "fulano@email.com",
+                                    "login": "fulano",
+                                    "senha": "senha@123",
+                                    "tipoUsuario": "CLIENTE"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.status").value(400));
+                .andDo(print())
+                .andExpect(jsonPath("$.title").value("Dados Inválidos"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente."));
     }
+
     @Test
     void deveRetornarBadRequestQuandoNovaSenhaForFraca() throws Exception {
 
         mockMvc.perform(patch("/api/v1/users/{userId}/senha", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            {
-                                "senhaAtual": "12345678",
-                                "novaSenha": "senha123"
-                            }
-                            """))
+                                {
+                                    "senhaAtual": "12345678",
+                                    "novaSenha": "senha123"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.status").value(400));
+                .andDo(print())
+                .andExpect(jsonPath("$.title").value("Dados Inválidos"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente."));
 
         verify(userService, never())
                 .updateUserPassword(
@@ -208,41 +219,46 @@ class ControllerAdviceTest {
                         any(AlteracaoSenhaRequest.class)
                 );
     }
+
     @Test
     void deveRetornarBadRequestQuandoSenhaNaoTiverNumero() throws Exception {
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {
-                            "nome": "Fulano",
-                            "email": "fulano@email.com",
-                            "login": "fulano",
-                            "senha": "Senha@Teste",
-                            "tipoUsuario": "CLIENTE"
-                        }
-                        """))
+                                {
+                                    "nome": "Fulano",
+                                    "email": "fulano@email.com",
+                                    "login": "fulano",
+                                    "senha": "Senha@Teste",
+                                    "tipoUsuario": "CLIENTE"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.status").value(400));
+                .andDo(print())
+                .andExpect(jsonPath("$.title").value("Dados Inválidos"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente."));
     }
+
     @Test
     void deveRetornarBadRequestQuandoSenhaNaoTiverCaractereEspecial() throws Exception {
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {
-                            "nome": "Fulano",
-                            "email": "fulano@email.com",
-                            "login": "fulano",
-                            "senha": "Senha123",
-                            "tipoUsuario": "CLIENTE"
-                        }
-                        """))
+                                {
+                                    "nome": "Fulano",
+                                    "email": "fulano@email.com",
+                                    "login": "fulano",
+                                    "senha": "Senha123",
+                                    "tipoUsuario": "CLIENTE"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.status").value(400));
+                .andExpect(jsonPath("$.title").value("Dados Inválidos"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").value("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente."));
     }
 
 
