@@ -1,5 +1,6 @@
 package br.com.foodapi.controller;
 
+import br.com.foodapi.generated.model.FieldError;
 import br.com.foodapi.generated.model.Problem;
 import br.com.foodapi.infra.errors.InvalidPasswordException;
 import br.com.foodapi.infra.errors.UserAlreadyExistsException;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -27,22 +30,26 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request) {
 
-        String detail = ex.getBindingResult()
+        List<FieldError> fieldErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+                .map(error -> {
+                    FieldError fe = new FieldError();
+                    fe.setField(error.getField());
+                    fe.setMessage(error.getDefaultMessage());
+                    return fe;
+                })
+                .distinct()
+                .collect(Collectors.toList());
 
         Problem problem = new Problem();
+        problem.setType("about:blank");
+        problem.setTitle("Dados Inválidos");
+        problem.setStatus(HttpStatus.BAD_REQUEST.value());
+        problem.setDetail("Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.");
+        problem.setInstance(((ServletWebRequest) request).getRequest().getRequestURI());
 
-        problem.type("about:blank");
-        problem.title("Bad Request");
-        problem.status(HttpStatus.BAD_REQUEST.value());
-        problem.detail(detail);
-
-        problem.instance(((ServletWebRequest) request)
-                .getRequest()
-                .getRequestURI());
+        problem.setObjects(fieldErrors);
 
         return handleExceptionInternal(ex, problem, headers, HttpStatus.BAD_REQUEST, request);
     }
@@ -78,5 +85,32 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         problem.setType("about:blank");
         problem.setInstance("/exception");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Problem> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+
+        String requiredType = ex.getRequiredType() != null
+                ? ex.getRequiredType().getSimpleName()
+                : "desconhecido";
+
+        String detail = String.format(
+                "O parâmetro '%s' recebeu o valor '%s', mas esperava o tipo '%s'.",
+                ex.getName(),
+                ex.getValue(),
+                requiredType
+        );
+
+        Problem problem = new Problem();
+
+        problem.setType("about:blank");
+        problem.setTitle("Falha na Validação do Parâmetro");
+        problem.setStatus(HttpStatus.BAD_REQUEST.value());
+        problem.setDetail(detail);
+        problem.setInstance("/exception");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problem);
     }
 }

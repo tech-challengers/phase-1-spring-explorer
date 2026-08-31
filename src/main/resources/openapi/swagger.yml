@@ -511,7 +511,7 @@ components:
           type: string
           format: email
           maxLength: 254
-          pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
           example: fulano@email.com
 
         login:
@@ -524,8 +524,8 @@ components:
           type: string
           format: password
           minLength: 8
-          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
           writeOnly: true
+          x-field-extra-annotation: '@jakarta.validation.constraints.Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", message = "A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais")'
           example: "Senha@123"
 
         tipoUsuario:
@@ -551,7 +551,8 @@ components:
           type: string
           format: email
           maxLength: 254
-          pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+          x-field-extra-annotation: '@jakarta.validation.constraints.Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Formato de e-mail inválido")'
           example: siclano@email.com
 
         login:
@@ -581,9 +582,7 @@ components:
         novaSenha:
           type: string
           format: password
-          minLength: 8
-          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
-          writeOnly: true
+          x-field-extra-annotation: '@jakarta.validation.constraints.Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", message = "A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais")'
           example: "NovaSenha@123"
 
     UsuarioResponse:
@@ -805,6 +804,19 @@ components:
           type: string
           example: Brasil
 
+    FieldError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: email
+        message:
+          type: string
+          example: Formato de e-mail inválido
+
     Problem:
       type: object
 
@@ -834,3 +846,8 @@ components:
         instance:
           type: string
           example: /users/1
+        objects:
+          type: array
+          description: Lista de campos que geraram erro de validação
+          items:
+            $ref: '#/components/schemas/FieldError'

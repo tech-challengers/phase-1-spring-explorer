@@ -179,6 +179,8 @@
                         <skipDefaultInterface>true</skipDefaultInterface>
                         <useBuilders>true</useBuilders>
                         <generateBuilders>true</generateBuilders>
+                        <useBeanValidation>true</useBeanValidation>
+                        <performBeanValidation>true</performBeanValidation>
                     </configOptions>
                 </configuration>
 
