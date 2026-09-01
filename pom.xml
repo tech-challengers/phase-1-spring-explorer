@@ -14,7 +14,7 @@
 
     <groupId>br.com.foodapi</groupId>
     <artifactId>food-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>food-api</name>
     <description>API para gerenciamento de clientes e restaurantes</description>
 
